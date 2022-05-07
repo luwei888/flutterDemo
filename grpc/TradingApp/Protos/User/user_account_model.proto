@@ -1,0 +1,64 @@
+syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.User;
+
+//验证码类型
+enum VerifyCodeType{
+   LoginCode = 0;
+   Regsiter = 1;
+   RetrievePassword = 2; 
+   ChangePassword = 3;
+   UpdateValidity = 4;
+   SecurityVerify = 5;
+}
+
+//性别
+enum GenderType{
+   Female = 0; //女士
+   Male = 1;   //男士
+   Unknown = 2; //无性别
+}
+
+message UserGm{
+    string Id=1;
+    string IDSId=2;
+    string UserName=3;
+    string Email=4;
+    string PhoneNumber=5;
+    string WeChat=6;
+    bool IsTrader=7;
+    GenderType Gender=8;
+    string Autograph=9;
+    string Avatar = 10; //头像URL
+    string Location=11;
+}
+
+//jwt令牌信息
+message JwtToken{
+    string Token = 1; // 鉴权令牌
+    int32 NotBefore = 2;    // 生效开始
+    int32 Expires = 3;    // 生效结束
+}
+
+//令牌状态
+enum TokenStates{
+    Normal = 0; //正常
+    KickedOffline = 1;  //被踢下线
+}
+
+enum StateCode{
+    Success = 0; //成功
+    NotSignUp = 1;     //未注册
+    AlreadySignUp = 2; //已注册
+    InvalidVerifyCode = 3; //验证码无效
+    InvalidInvideCode = 4; //邀请码无效
+}
+
+enum ProgressState{
+    None = 0;// 无
+    NotStarted=1;// 未开始
+    ToBeContinued=2;// 未完成
+    Committed=3;// 待处理
+    Approved=4;// 审核通过
+    Rejected = 5;// 审核驳回
+}

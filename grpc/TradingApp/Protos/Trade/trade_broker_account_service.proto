@@ -1,0 +1,110 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.Trade.Account;
+
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+
+//券商-资金账户
+service TradeBrokerAccountService {
+  //获取券商-账户记录
+  rpc GetList (GetListRequest) returns (GetListResponse);
+  //增加记录
+  rpc Add (AddRequest) returns (AddResponse);
+  //删除记录
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+  //修改保持在线时间
+  rpc EditKeepOnlineTime (KeepOnlineTimeRequest) returns (KeepOnlineTimeResponse);
+  //修改登录状态
+  rpc EditLogin (LoginRequest) returns (LoginResponse);
+
+  //获取绑定的交易账户
+  rpc GetTradeAccount(GetTradeAccountReq) returns (GetTradeAccountResp);
+}
+
+
+message GetListRequest{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+}
+
+message GetListResponse{
+	repeated TradeAccountInfo TradeAccountList = 1;
+    PageInfo PageInfo = 2;
+}
+
+message AddRequest{
+    string BrokerId = 1;
+	string FundAccount = 2;
+}
+
+message AddResponse{
+}
+
+message DeleteRequest{
+	string Id = 1;
+}
+
+message DeleteResponse{
+}
+
+message KeepOnlineTimeRequest{
+	string Id = 1;
+	int32 Time = 2;
+}
+
+message KeepOnlineTimeResponse{
+}
+
+message LoginRequest{
+	string Id = 1;
+	bool Login = 2;
+}
+
+message LoginResponse{
+}
+
+//券商-账户信息
+message TradeAccountInfo{
+	string Id = 1;//Id
+	string BrokerName = 2;//券商名称
+	string LogoUrl = 3;//logo
+	string FundAccount = 4;//资金账号
+	string InterfaceAddr = 5;//接口地址
+	string Code = 6;//识别code（暂定券商名首字母大写）
+	int32 KeepOnlineTime = 7;//保持在线时间
+	bool Login = 8;//登录状态	
+}
+
+
+
+// 请求 - 获取绑定的交易账户
+message GetTradeAccountReq{
+
+}
+
+// 响应 - 获取绑定的交易账户
+message GetTradeAccountResp{
+	repeated ClientTradeAccount TradeAccounts = 1;	//账户列表
+}
+
+//账户详情
+message ClientTradeAccount{
+   reserved 1;
+   TradeAccountType AccountType = 2;	//账户类型
+   string AccountCode = 3;	//账号
+   TradeAccountState AccountState = 4;	//账户状态
+}
+
+//账户类型
+enum TradeAccountType{
+    HK_Stock = 0;//港股股票账号
+    HK_Futures = 1;//港股期货账号
+    US_Stock = 2;//美股股票账号 
+}
+
+//账户状态
+enum TradeAccountState{
+    Active = 0;//激活
+    Disable = 1;//禁用
+    Lock = 2;//锁定
+}

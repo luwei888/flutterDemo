@@ -1,0 +1,99 @@
+syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.User.Email;
+
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+import "grpc/TradingApp/Protos/User/user_account_model.proto";
+
+service UserEmailService{
+	// 发送邮箱验证码
+	rpc SendVerifyCode (SendVerifyCodeReq) returns (SendVerifyCodeResp);
+	// 邮箱注册
+	rpc SignUp (SignUpReq) returns (SignUpResp);
+	// 密码登录邮箱
+	rpc SignInByPassword (SignInByPasswordReq) returns (SignInByPasswordResp);
+	// 验证码登录邮箱
+	rpc SignInByVerifyCode (SignInByVerifyCodeReq) returns (SignInByVerifyCodeResp);
+	// 更新邮箱地址
+	rpc UpdateEmail (UpdateEmailReq) returns (UpdateEmailResp);
+	// 重置邮箱密码（验证码）
+	rpc ResetPassword (ResetPasswordReq) returns (ResetPasswordResp);
+	// 重置邮箱密码（旧密码）
+	rpc ResetPasswordByOldPassword (ResetPasswordByOldPasswordReq) returns (ResetPasswordByOldPasswordResp);
+	// 忘记邮箱密码
+	rpc ForgetPassword (ForgetPasswordReq) returns (ForgetPasswordResp);
+	// 验证邮箱验证码
+	rpc CheckVerifyCode (CheckVerifyCodeReq) returns (CheckVerifyCodeResp);
+}
+message SendVerifyCodeReq{
+	string Email = 1; // 邮箱地址
+	VerifyCodeType CodeType = 2; //验证码类型
+}
+message SendVerifyCodeResp{
+	StateCode StateCode = 1; // 应答状态码
+}
+message SignUpReq{
+	string Email = 1; // 邮箱地址
+	string VerifyCode = 2; // 验证码
+	string Password = 3; // 密码
+	string InviteCode = 4;
+}
+message SignUpResp{
+	StateCode StateCode = 1; // 应答状态码
+}
+message SignInByPasswordReq{
+	string Email = 1; // 邮箱地址
+	string Password = 2; // 密码
+    DeviceTypes DeviceType = 3; //设备类型
+}
+message SignInByPasswordResp{
+	StateCode StateCode = 1; // 应答状态码
+    JwtToken Token = 2;   // 登录token
+    string UserId = 3;  // 用户id
+}
+message SignInByVerifyCodeReq{
+	string Email = 1; // 邮箱地址
+	string VerifyCode = 2; // 验证码
+    DeviceTypes DeviceType = 3; //设备类型
+}
+message SignInByVerifyCodeResp{
+	StateCode StateCode = 1; // 应答状态码
+    JwtToken Token = 2;   // 登录token
+    string UserId = 3;  // 用户id
+}
+message UpdateEmailReq{
+	string UserId = 1; // 用户Id
+	string VerifyCode = 2; // 验证码
+	string NewEmail = 3; // 新邮箱地址
+}
+message UpdateEmailResp{
+	StateCode StateCode = 1;
+}
+message ResetPasswordReq{
+	string VerifyCode = 1; // 验证码
+	string NewPassword = 2; // 新密码
+}
+message ResetPasswordResp{
+	StateCode StateCode = 1;
+}
+message ResetPasswordByOldPasswordReq{
+	string OldPassword = 1; //旧密码
+	string NewPassword = 2; //新密码
+}
+message ResetPasswordByOldPasswordResp{
+	StateCode StateCode = 1;
+}
+message ForgetPasswordReq{
+	string Email = 1; // 邮箱地址
+	string VerifyCode = 2; // 验证码
+	string NewPassword = 3; // 新密码
+}
+message ForgetPasswordResp{
+	StateCode StateCode = 1;
+}
+message CheckVerifyCodeReq{
+	string VerifyCode = 1;
+}
+message CheckVerifyCodeResp{
+	StateCode StateCode = 1; // 应答状态码
+}

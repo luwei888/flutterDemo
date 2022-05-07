@@ -1,0 +1,25 @@
+﻿syntax = "proto3";
+package PG.FutureMarket.Protubuf;
+
+
+enum StockType{
+    Unknown = 0; //未知
+    BOND = 1;    //债务证券
+	CBBC = 2;    //牛熊证
+	DW = 3;      //衍生权证
+	EQTY = 4;    //股本证券
+	ETP = 5;     //交易所买卖产品
+	REIT = 6;    //房地产投资信托基金
+	IW = 7;      //界内证
+}
+
+enum SortType{
+	ASC = 0;
+	DESC = 1;
+}
+
+enum MarketType{
+    HK = 0;
+    US = 1;
+	ALL = 2;
+}

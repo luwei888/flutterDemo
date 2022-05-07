@@ -1,0 +1,229 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.Trade.SelfSelect;
+
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+import "grpc/google/protobuf/wrappers.proto";
+
+//1.1.0增加了自选分组，为此对于旧接口的数据处理方式为：获取自选记录、新增自选、删除自选、置顶自选都默认使用“全部”分组（客户端无需处理）
+service TradeSelfSelectedService {
+  //[已过期，请使用GetSelectList]获取自选记录
+  rpc GetList (GetListRequest) returns (GetListResponse);
+
+  //[已过期，请使用AddSelect]新增自选
+  rpc Add (AddRequest) returns (AddResponse);
+
+  //[已过期，请使用RemoveSelect]删除自选
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+
+  //[已过期，请使用Reorder]置顶自选
+  rpc SetSortTopping (ToppingRequest) returns (ToppingResponse);
+  
+  //自选 - 获取默认列表
+  rpc GetDefaultList (GetDefaultListReq) returns (GetDefaultListResp);
+
+  //自选 - 获取列表
+  rpc GetSelectList (GetSelectListReq) returns (GetSelectListResp);
+
+  //自选 - 添加到。后端自动添加“全部”分组
+  rpc AddSelect (AddSelectReq) returns (AddSelectResp);
+
+  //自选 - 移动到。如果是“全部”分组，此操作为复制，否则为移动
+  rpc MoveSelect (MoveSelectReq) returns (MoveSelectResp);
+
+  //自选 - 移除。如果是“全部”分组，则对应也删除全部其他的分组同一自选（同一symbol），否则只删除自己
+  rpc RemoveSelect (RemoveSelectReq) returns (RemoveSelectResp);
+
+  //自选 - 调整位置
+  rpc ReorderSelect (ReorderSelectReq) returns (ReorderSelectResp);
+
+  //分组 - 获取列表
+  rpc GetGroupList (GetGroupListReq) returns (GetGroupListResp);
+
+  //分组 - 添加
+  rpc AddGroup (AddGroupReq) returns (AddGroupResp);
+
+  //分组 - 移除
+  rpc RemoveGroup (RemoveGroupReq) returns (RemoveGroupResp);
+
+  //分组 - 重命名
+  rpc RenameGroup (RenameGroupReq) returns (RenameGroupResp);
+
+  //分组 - 调整位置
+  rpc ReorderGroup (ReorderGroupReq) returns (ReorderGroupResp);
+}
+
+//[已过期，请使用GetSelectList]请求 - 获取自选记录
+message GetListRequest{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+}
+
+//[已过期，请使用GetSelectList]响应 - 获取自选记录
+message GetListResponse{
+	repeated SelfSelectedInfo SelfSelectedList = 1;
+    PageInfo PageInfo = 2;
+}
+
+//[已过期，请使用AddSelect]请求 - 新增自选
+message AddRequest{
+	string Symbol = 1;//股票代码
+}
+
+//[已过期，请使用AddSelect]响应 - 新增自选
+message AddResponse{
+}
+
+//[已过期，请使用RemoveSelect]请求 - 删除自选
+message DeleteRequest{
+	string Symbol = 1;
+}
+
+//[已过期，请使用RemoveSelect]响应 - 删除自选
+message DeleteResponse{
+}
+
+//[已过期，请使用Reorder]请求 - 置顶自选
+message ToppingRequest{
+	string Symbol = 1;
+}
+
+//[已过期，请使用Reorder]响应 - 置顶自选
+message ToppingResponse{
+}
+
+//自选信息
+message SelfSelectedInfo{
+	string Symbol = 1;	//股票代码
+	string Id = 2;	//主键
+	string Name = 3;	//股票名
+	double LastPrice = 4;	//现价
+	double PreClosePrice = 5;	//昨收价
+	MarketType Market = 6;   //市场类型
+}
+
+//分组信息
+message SelfSelectedGroupInfo{
+	string Id = 1;	//主键
+	string Name = 2;	//名称
+	bool IsSys = 3;	//是否是系统默认分组（“全部”）
+	int32 SelectCount = 4;	//自选数
+	google.protobuf.StringValue ComboId = 5; //扩展:精选组合Id
+	bool IsHolding = 6; // 是否为持仓分组
+}
+
+//请求 - 自选 - 获取默认列表
+message GetDefaultListReq {
+}
+
+//响应 - 自选 - 获取默认列表
+message GetDefaultListResp {
+	repeated SelfSelectedInfo List = 1;
+}
+
+//请求 - 自选 - 获取列表
+message GetSelectListReq{
+	string GroupId = 1;	//分组id
+}
+
+//响应 - 自选 - 获取列表
+message GetSelectListResp{
+	repeated SelfSelectedInfo List = 1;
+}
+
+//请求 - 自选 - 添加到
+message AddSelectReq{
+	repeated string GroupIds = 1;	//分组id，不必添加“全部”分组
+	string Symbol = 2;	//股票代码
+	MarketType Market = 3; //市场类型
+}
+
+//响应 - 自选 - 添加到
+message AddSelectResp{
+}
+
+//请求 - 自选 - 移动到
+message MoveSelectReq{
+	repeated string Ids = 1;	//被移动的主键id集合
+	repeated string GroupIds = 2;	//要移动到的分组id集合
+}
+
+//响应 - 自选 - 移动到
+message MoveSelectResp{
+}
+
+//请求 - 自选 - 移除
+message RemoveSelectReq{
+	repeated string Ids = 1;	//根据自选id集合。如果其分组为“全部”分组则从所有分组移除相同自选
+	string Symbol = 2;	//根据股票代码，从所有分组移除相同自选
+}
+
+//响应 - 自选 - 移除
+message RemoveSelectResp{
+}
+
+//请求 - 自选 - 调整位置
+message ReorderSelectReq{
+	string Id = 1;	//要调整位置的自选id
+	oneof Insertion{	//调整位置点
+		string AfterId = 2;	//移动到此自选id后面。AfterId和BeforeId选填一个
+		string BeforeId = 3;	//移动到此自选id前面。AfterId和BeforeId选填一个
+	}
+}
+
+//响应 - 自选 - 调整位置
+message ReorderSelectResp{
+}
+
+//请求 - 分组 - 获取列表
+message GetGroupListReq{
+	bool IsIncludeHolding = 1;  // 是否包含持仓分组
+}
+
+//响应 - 分组 - 获取列表
+message GetGroupListResp{
+	repeated SelfSelectedGroupInfo List = 1;
+}
+
+//请求 - 分组 - 添加
+message AddGroupReq{
+	string Name = 1;	//名称
+	google.protobuf.StringValue ComboId = 2; // 扩展：精选组合Id
+}
+
+//响应 - 分组 - 添加自选
+message AddGroupResp{
+}
+
+//请求 - 分组 - 移除
+message RemoveGroupReq{
+	repeated string Ids = 1;	//分组id集合
+	bool IsRemoveSelects = 2;	//是否同时移除其自选。是则不保留自选到“全部”分组，否则保留“全部”中的自选
+}
+
+//响应 - 分组 - 移除
+message RemoveGroupResp{
+}
+
+//请求 - 分组 - 重命名
+message RenameGroupReq{
+	string Id = 1;	//分组id
+	string Name = 2;	//新名称
+}
+
+//响应 - 分组 - 重命名
+message RenameGroupResp{
+}
+
+//请求 - 分组 - 调整位置
+message ReorderGroupReq{
+	string Id = 1;	//要调整位置的分组id
+	oneof Insertion{	//调整位置点
+		string AfterId = 2;	//移动到此分组id后面。AfterId和BeforeId选填一个
+		string BeforeId = 3;	//移动到此分组id前面。AfterId和BeforeId选填一个
+	}
+}
+
+//响应 - 分组 - 调整位置
+message ReorderGroupResp{
+}

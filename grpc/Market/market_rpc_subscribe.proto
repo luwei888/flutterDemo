@@ -1,0 +1,99 @@
+﻿syntax = "proto3";
+package PG.FutureMarket.Protubuf.Rpc;
+import "grpc/Market/market_model.proto";
+import "grpc/CompanyBehaviour/common_model.proto";
+
+/*---- Rpc ----*/
+
+service SubMarketService{  
+  //初始化订阅Token
+  rpc CreateSubscribeToken (SubscribeInitRequest) returns (SubscribeInitResponse) {}
+  //创建订阅连接
+  rpc BuildConnection (SubscribeBuilder) returns (stream PushMarketData) {}
+  //订阅推送
+  rpc Subscribe (SubscribeRequest) returns (SubscribeResponse) {}
+  //退订推送
+  rpc Unsubscribe (UnsubscribeRequest) returns (SubscribeResponse) {}
+  //订阅指数
+  rpc SubscribeIndex (SubscribeIndexData) returns (stream IndexData) {}
+  //订阅K线
+  rpc SubscribeKLine (SubscribeKLineRequest) returns (stream KLineRealtimeCandleChartItem){}
+  //订阅交易状态
+  rpc SubscribeTradingSession (SubcribeTradingSessionRequest) returns (stream TradingSession){}
+  //订阅指数K线
+  rpc SubscribeIndexKline (SubscribeKLineRequest) returns (stream KLineRealtimeCandleChartItem){}
+}
+
+/*---- Request ----*/
+
+//订阅初始化请求
+message SubscribeInitRequest{}
+
+//订阅类型
+enum SubscribeType{
+    SubTos = 0;
+    SubLv2 = 1;
+    SubKline = 2;
+    SubBroker = 3;
+    SubStatistics = 4;      //美股兼容旧版本：盘中统计
+    SubAllStatistics = 5;   //全时段统计（仅适用美股, 港股仍使用SubStatistics）
+}
+
+//订阅期货请求
+message SubscribeRequest{
+  string token = 1;
+  string symbol = 2;
+  SubscribeType type = 3;
+}
+
+//退订期货请求
+message UnsubscribeRequest{
+  string token = 1;
+  string symbol = 2;
+  SubscribeType type = 3;
+}
+
+//订阅Token创建请求
+message SubscribeBuilder{
+    string token = 1;
+}
+
+message SubscribeIndexData{
+    string IndexCode = 1;
+}
+
+message SubscribeKLineRequest{
+    string symbol = 1;
+    CandleUnit unit = 2;
+}
+
+message SubcribeTradingSessionRequest{
+    string symbol = 1;
+    MarketType Market = 2;
+}
+
+/*---- Response ----*/
+
+//订阅初始化响应
+message SubscribeInitResponse{
+  string token = 1;
+  string expirationTime = 2;  //Token过期时间 | 过期之前BuildConnection都有效 | 格式YYYY-MM-DD hh:mm:ss
+}
+
+//行情推送数据
+message PushMarketData{
+    string symbol = 1;
+    oneof data{
+        MinuteKLine kline = 2;
+        PushLevel2 level2 = 3;
+        Tos tos = 4;
+        BrokerQueue  broker = 5;
+        Statistics statistics = 6;
+    }
+}
+
+//订阅|退订响应
+message SubscribeResponse{
+  bool success = 1;
+  string message = 2;
+}

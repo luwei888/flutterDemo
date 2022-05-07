@@ -1,0 +1,35 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.User.Setting;
+
+import "grpc/TradingApp/Protos/User/user_setting_model.proto";
+
+service UserSettingService { 
+  rpc Get (GetReq) returns (GetResp);   //获取设置
+
+  rpc TogglePush (TogglePushReq) returns (TogglePushResp);  //消息推送开关
+  rpc LanguageSetting(LanguageSettingReq) returns (LanguageSettingResp);
+}
+
+message GetReq{
+}
+
+message GetResp{
+	UserSettingGm Setting = 1;  //设置
+}
+
+message TogglePushReq{
+    bool EnablePush = 1;    //是否开启
+}
+
+message TogglePushResp{
+}
+
+message LanguageSettingReq{
+	int32 LCID = 1;
+	int32 LCIDSetting = 2;
+}
+
+message LanguageSettingResp{
+
+}

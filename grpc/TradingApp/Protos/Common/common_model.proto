@@ -1,0 +1,55 @@
+﻿syntax = "proto3";
+
+package TradingApp.GrpcService.App;
+
+//分页信息
+message PageInfo{
+	int32 pageIndex = 1;
+	int32 pageSize = 2;
+    int64 count = 3;
+}
+
+//分页请求
+message Paging{
+	int32 pageIndex = 1;
+	int32 pageSize = 2;
+}
+
+//错误代码
+enum ErrorCodes{
+    Success = 0;    //成功
+    NeedSignIn = 1; //需要去登录
+    BizError = 2;   //业务错误（会向用户显示具体错误）
+    InternalError = 3;  //内部错误（不会像用户显示具体错误）
+}
+
+//通用结果
+message CommonResult{
+    ErrorCodes ErrorCode = 1;   //错误代码
+    string ErrorMessage = 2;    //错误信息
+}
+
+
+//踪迹
+message Trace{
+    string DeviceId = 1;    //设备id
+    string DeviceInfo = 2;  //设备信息（型号、OS等）
+    string PushDeviceId = 3; //移动推送设备id
+    string Platform = 4;  //平台
+    string Version = 5; //App版本
+}
+
+// 设备类型
+enum DeviceTypes{
+    DeviceTypeUnknown = 0;  //未知
+    Phone = 1;  //手机
+    Tablet = 2; //平板
+    Desktop = 3;    //桌面电脑
+}
+
+//市场类型
+enum MarketType{
+    HK = 0; //港股
+    US = 1; //美股
+	ALL = 2; //全部
+}

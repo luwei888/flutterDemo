@@ -1,0 +1,76 @@
+syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.User.PhoneNumber;
+
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+import "grpc/TradingApp/Protos/User/user_account_model.proto";
+
+service UserPhoneNumberService{
+	// 发送手机验证码
+	rpc SendVerifyCode (SendVerifyCodeReq) returns (SendVerifyCodeResp);
+	// 手机注册
+	rpc SignUp (SignUpReq) returns (SignUpResp);
+	// 密码登录手机
+	rpc SignInByPassword (SignInByPasswordReq) returns (SignInByPasswordResp);
+	// 验证码登录手机
+	rpc SignInByVerifyCode (SignInByVerifyCodeReq) returns (SignInByVerifyCodeResp);
+	// 更新手机号码
+	rpc UpdatePhoneNumber (UpdatePhoneNumberReq) returns (UpdatePhoneNumberResp);
+	// 重置手机密码
+	rpc ResetPassword (ResetPasswordReq) returns (ResetPasswordResp);
+}
+
+message SendVerifyCodeReq{
+	string PhoneNumber = 1; // 手机号码
+	VerifyCodeType CodeType = 2; //验证码类型
+}
+message SendVerifyCodeResp{
+	StateCode StateCode = 1; // 应答状态码
+}
+message SignUpReq{
+	string PhoneNumber = 1; // 手机号码
+    string IsdCode = 2; //手机地区号
+	string VerifyCode = 3; // 验证码
+	string Password = 4; // 密码
+}
+message SignUpResp{
+	StateCode StateCode = 1; // 应答状态码
+}
+message SignInByPasswordReq{
+	string PhoneNumber = 1; // 手机号码
+    string IsdCode = 2; //手机地区号
+	string Password = 3; // 密码
+    DeviceTypes DeviceType = 4; //设备类型
+}
+message SignInByPasswordResp{
+	StateCode StateCode = 1; // 应答状态码
+    JwtToken Token = 2;   // 登录token
+    string UserId = 3;  // 用户id
+}
+message SignInByVerifyCodeReq{
+	string PhoneNumber = 1; // 手机号码
+    string IsdCode = 2; //手机地区号
+	string VerifyCode = 3; // 验证码
+    DeviceTypes DeviceType = 4; //设备类型
+}
+message SignInByVerifyCodeResp{
+	StateCode StateCode = 1; // 应答状态码
+    JwtToken Token = 2;   // 登录token
+    string UserId = 3;  // 用户id
+}
+message UpdatePhoneNumberReq{
+	string UserId = 1; // 用户Id
+	string VerifyCode = 2; // 验证码
+	string NewPhoneNumber = 3; // 新手机号码
+}
+message UpdatePhoneNumberResp{
+	StateCode StateCode = 1;
+}
+message ResetPasswordReq{
+	string PhoneNumber = 1; // 手机号码
+	string VerifyCode = 2; // 验证码
+	string NewPassword = 3; // 新密码
+}
+message ResetPasswordResp{
+	StateCode StateCode = 1;
+}

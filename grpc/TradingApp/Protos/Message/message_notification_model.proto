@@ -1,0 +1,80 @@
+﻿syntax = "proto3"; 
+
+/*
+*
+* 注意！此文件由TradingApp.ProtobufShared提供，如需改动应在TradingApp.ProtobufShared中进行
+*
+*/
+
+package TradingApp.ProtobufShared.Message;
+
+// 资金流转通知
+message FundNoteInfo{
+    int64 RecordId = 1; // 入金详情Id
+    string ClientAccountId = 2; //交易账号ID
+    TradeAccountType ClientAccountType = 3;//交易账号类型 港股，美股，港股期货，美股期货，港股模拟，美股模拟
+    int64 WalletId = 4;  // 钱包Id
+    string WalletAddress = 5; // 钱包地址
+    NetworkType Network = 6;//币链
+    double ApplyAmount = 7; // 申请金额 (到账通知不填写)
+    CurrencyType ApplyCurrencyType = 8; // 申请货币类型 (到账通知不填写)
+    double AccountedAmount = 9; // （预计）到账金额
+    CurrencyType AccountedCurrencyType = 10; // （预计）到账货币类型
+    FundNoteType FundNoteType = 11;
+}
+
+// 货币兑换通知
+message CurrencyExchangeNoteInfo{
+    int64 RecordId = 1; // 换汇详情Id
+    CurrencyType InCurrencyType = 2; //兑入货币类型
+    double InAmount = 3; //兑入金额
+    string InAccountId = 4; //兑入交易账号Id
+    CurrencyType OutCurrencyType = 5; //兑出货币类型
+    double OutAmount = 6; //兑出金额
+    string OutAccountId = 7; //兑出交易账号Id
+    CurrencyExchangeNoteType CurrencyExchangeNoteType = 8;
+}
+
+enum MessageType{
+    Order = 0;            // 交易订单
+    FundNote = 1;         // 资金通知
+    CurrencyExchange = 2; // 货币兑换
+    SystemNote = 3;       // 系统通知
+}
+
+enum CurrencyType{
+    Usdt = 0; // 泰达币
+    HKD = 1; // 港币
+    USD = 2; // 美元
+}
+
+enum NetworkType{
+    Bitcoin = 0;
+    Ethereum = 1;
+    Tron = 2;
+}
+
+//资金流转通知类型
+enum FundNoteType{
+    DepositApply = 0;      // 入金申请通知
+    WithdrawApply = 1;     // 出金申请通知
+    DepositAccounted = 2;  // 入金到账通知
+    WithdrawAccounted = 3; // 出金到账通知
+    DepositDenied = 4;     // 入金驳回通知
+    WithdrawDenied = 5; // 出金驳回通知
+}
+
+//交易账号类型
+enum TradeAccountType{
+    HK_Stock = 0;//港股股票账号
+    HK_Futures = 1;//港股期货账号
+    US_Stock = 2;//美股股票账号 
+    HK_Stock_SIM= 3;//港股模拟交易
+    US_Stock_SIM= 4;//美股模拟交易
+}
+
+//货币兑换通知类型
+enum CurrencyExchangeNoteType{
+    Apply = 0; // 提交申请
+    Success = 1; // 换汇成功
+}

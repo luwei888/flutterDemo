@@ -1,0 +1,29 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.Trade.HotStock;
+
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+
+
+service TradeHotStockService {
+  //获取热股记录
+  rpc GetList (GetListRequest) returns (GetListResponse);
+}
+
+message GetListRequest{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+}
+
+message GetListResponse{
+	repeated HotStockInfo HotStockInfoList = 1;
+    PageInfo PageInfo = 2;
+}
+
+message HotStockInfo{
+    string Symbol = 1;//股票代码
+    string StockName = 2;//股票名称
+	double LastPrice = 3;	//现价
+	double PreClosePrice = 4;	//昨收价
+	MarketType Market = 5;   //市场类型
+}

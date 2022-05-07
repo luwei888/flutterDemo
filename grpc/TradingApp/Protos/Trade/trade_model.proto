@@ -1,0 +1,50 @@
+﻿syntax = "proto3"; 
+
+/*
+*
+* 注意！此文件由TradingApp.ProtobufShared提供，如需改动应在TradingApp.ProtobufShared中进行
+*
+*/
+
+package TradingApp.ProtobufShared.Trade;
+
+//买卖方向
+enum Directions{
+    Buy = 0;    //买B
+    Sell = 1;   //卖S
+    Empty = 2;  //无
+}
+
+////订单类型
+//enum OrderTypes{
+//    PriceLimit = 0;    //Price Limit 限价单
+//    EnhancedLimit = 1;    //Enhanced Limit 增强限价单
+//    SpecialLimit = 2;    //Special Limit 特别限价单
+//    AuctionLimit = 3;    //Auction Limit 竞价限价单
+//    AuctionMarket = 4;    //Auction Market 集合竞价单
+//}
+
+//订单状态
+enum OrderStatus{
+    New = 0;    //新创建NEW
+    WaitingForApproval = 1; //等待审核WA
+    SendingToExchange  = 2; //正在投递到交易所PRO
+    Queued = 3; //排队中Q
+    Rejected = 4;   //已退单REJ
+    PartiallyFilled = 5; //部分成交PEX
+    FullyFilled = 6;    //全部成交FEX
+    Cancelled = 7;  //已取消CAN
+    All = 8;    //全部ALL
+}
+
+//订单通知信息
+message OrderNoteInfo{
+    string OrderNo = 1;    //订单编号
+    string CurrencyCode = 2;    //交易币种
+    string Symbol = 3;  //股票代码
+    string StockName = 4;   //股票名
+    OrderStatus Status = 5; //状态
+    Directions Direction = 6;   //买卖方向
+    double Price = 7;   //价格
+    double Quantity = 8;    //数量
+}

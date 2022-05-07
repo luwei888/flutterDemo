@@ -1,0 +1,11 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.User.Setting;
+
+
+//用户设置
+message UserSettingGm{
+    bool EnablePush = 1;    //是否开启消息推送
+    int32 LCID = 2;         //区域标识符
+    int32 LCIDSetting = 3;  //区域标识符设置
+}

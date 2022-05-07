@@ -1,0 +1,293 @@
+﻿syntax = "proto3";
+package PG.FutureMarket.Protubuf;
+import "grpc/google/protobuf/timestamp.proto";
+import "grpc/CompanyBehaviour/common_model.proto";
+
+
+message SimpleMinuteKLine{
+    string Time = 1;     //时间
+    double Close = 2;    //收盘价
+}
+
+enum TradeType{
+    AutoMatch = 0;
+    P = 4;      //Late trade
+    M = 22;     //Non-direct Off-exchange trade
+    Y = 100;    //Auto match internalized
+    X = 101;    //Direct
+    D = 102;    //Odd-lot
+    U = 103;    //Auction trade
+    Overseas = 104;
+}
+
+//买卖方向
+enum SideType{
+    not = 0;    //未知
+    buy = 1;    //买
+    sell = 2;   //卖
+}
+
+//交易时段
+enum TradeSession{
+	unknown = 0;    //未知
+	early = 1;      //早盘, 盘前（美股）
+	midday = 2;     //午盘, 盘中（美股）
+	late = 3;       //晚盘, 盘后（美股）
+}
+
+message Level2{
+  double price = 1;             //价格
+  SideType side = 2;            //方向
+  uint64 quantity =3;           //数量
+  uint32 rank = 4;              //档位(1-10档)
+  uint32 numberOfOrders = 5;    //订单数量
+}
+
+//分钟K线模型
+message MinuteKLine{
+  double close = 1;     //收盘价
+  double high = 2;      //最高价
+  double low = 3;       //最低价
+  double open = 4;      //开盘价
+  string time = 5;      //K线时间
+  double turnover = 6;  //成交额
+  uint64 vol = 7;       //成交量
+  double preclose = 8;  //昨收价
+}
+
+//日K线模型
+message DayKLine{
+  double close = 1;     //收盘价
+  double high = 2;      //最高价
+  double low = 3;       //最低价
+  double open = 4;      //开盘价
+  string date = 5;      //K线时间
+  double turnover = 6;  //成交额
+  uint64 vol = 7;       //成交量
+}
+
+//TOS模型
+message Tos{
+  double price = 1;         //价格
+  SideType side = 2;        //买卖方向
+  uint32 Number = 3;        //数量
+  string time = 4;          //成交时间
+  TradeType trdType = 5;    //成交类型
+  TradeSession session = 6; //成交时段
+}
+
+//交易状态
+enum TradingStatus{
+    Trading = 0;        //交易中, 盘中（美股）
+    Halt = 1;           //停牌/停止交易
+    Resume = 2;         //复牌（可交易）
+    Close = 3;          //休盘中
+    OpenBidding = 4;    //开市竞价, 盘前（美股）
+    CloseBidding = 5;   //收市竞价, 盘后（美股）
+} 
+
+//期货基础信息
+message FutureInfo{
+  string Symbol = 1;                            //编号
+  string Name = 2;                              //名称 英文
+  string Alias = 3;                             //别名 中文
+  string MarketCode = 4;                        //类型
+  string InstrumentCode = 5;                    //不知道
+  string InstrStatus = 6;                       //状态（1=暂停, 0=恢复, 3=发布,4=已删除）
+  string TradingHoursPreMarket_Opening = 7;     //盘前交易
+  string TradingHoursMorning = 8;               //上午交易时段
+  string TradingHoursAfternoon = 9;             //下午交易时段
+  string TradingHoursAfterHours = 10;           //晚上交易时段
+  string TradingHoursLastTrading_Day = 11;      //到期日交易时间段
+  string SymbolUnderlyingTicker = 12;           //对应股票
+  string UnderlyingISIN = 13;                   //ISIN码
+  string ExpirationDate = 14;                   //到期日
+  string Exchange = 15;                         //交易所
+  double CommodityTickSize = 16;                //最小跳动价位
+  double InitialMargin = 17;                    //初始保证金
+  double MaintenanceMargin = 18;                //维持保证金
+  double SellInitialMargin = 19;                //做空初始保证金
+  double SellMaintenanceMargin = 20;            //做空维持保证金
+  string TradeCurrency = 21;                    //交易币种
+  double ContractSize = 22;                     //每手乘数
+  double OpenPrice = 23;                        //开盘价格
+  int64 Volume = 24;                            //交易量
+  double TurnOver = 25;                         //成交额
+  double PreClosePrice = 26;                    //昨收价格
+  double HighPrice = 27;                        //最高价
+  double LowPrice = 28;                         //最低价
+  string TotalShr = 29;                         //持仓量
+}
+
+//订阅推送的Level2模型
+message PushLevel2{
+    repeated Level2 items = 1;
+}
+
+//经纪人队列
+message BrokerQueue{
+    SideType Side = 1;                  //方向
+    repeated BrokerItem Brokers = 2;    //经纪人列表
+
+    message BrokerItem{ 
+        int32 Level = 1;                //挂单区间
+        int32 BrokerID = 2;             //经纪人ID
+        string Name = 3;                //经济名称
+    }
+}
+
+//统计
+message Statistics{
+    int64 SharesTraded = 1;                 //交易量
+    double Turnover = 2;                    //成交额
+    float HighPrice = 3;                    //最高价
+    float LowPrice = 4;                     //最低价
+    float LastPrice = 5;                    //最新价
+    int32 ShortSellSharesTraded = 6;        //卖空量
+    double ShortSellTurnover = 7;           //卖空额
+    double OpenPrice = 8;                   //开盘价
+    string Symbol = 9;                      //股票代码
+    double PreClose = 10;                   //昨收价, 美股：盘前/盘中T-1日的收盘价, 盘后T日的收盘价; 港股：T日收盘价
+    TradeSession SessionId = 11;            //交易时段（暂只适用美股）
+    string Time = 12;                       //时间
+}
+
+//指数定义
+message IndexDefinition{
+    string IndexCode = 1;       //指数代码
+    string IndexSource = 2;     //指数源
+    string CurrencyCode = 3;    //货币代码
+}
+
+//指数数据
+message IndexData{
+    string IndexCode = 1;       //指数代码
+    string IndexStatus = 2;     //指数状态
+    int64 IndexTime = 3;        //发布时间戳 ms
+    double IndexValue = 4;      //当前指数
+    double NetChgPrevDay = 5;   //较昨日收盘价净变化
+    double HighValue = 6;       //最高
+    double LowValue = 7;        //最低
+    double EASValue = 8;        //预计结算均价
+    double IndexTurnover = 9;   //成交额
+    double OpeningValue = 10;   //开盘价
+    double ClosingValue = 11;   //收盘价
+    double PreviousSesClose = 12; //前一交易时段收盘价
+    double IndexVolume = 13;    //成交量
+    double NetChgPrevDayPct = 14; //较昨日收盘价变化比
+}
+
+//K线周期
+enum CandleUnit{
+    MINUTE_1 = 0; 
+    MINUTE_5 = 1;
+    MINUTE_60 = 2;
+    DAILY = 3;
+    WEEK = 4;
+    MONTH = 5;
+    YEAR = 6;
+    MINUTE_3 =7;
+    MINUTE_30 = 8;
+    MONTH_3 = 9;    //3个月(即季K)
+}
+
+message KLineCandleChart{
+    string Symbol = 1;
+    repeated KLineCandleChartItem Candles = 2;
+}
+
+message KLineCandleChartItem{
+    double ClosePrice = 1;       //收盘价
+    double HighestPrice = 2;     //最高价
+    double LowerPrice = 3;       //最低价
+    double OpenPrice = 4;        //开盘价
+    double Trunover = 5;         //成交额
+    double TradeVolume = 6;      //成交量
+    string TimePoint = 7;        //K线时间
+    double Preclose = 8;         //昨收价
+}
+
+message KLineRealtimeCandleChartItem{
+    string Symbol = 1;
+    double ClosePrice = 2;       //收盘价
+    double HighestPrice = 3;     //最高价
+    double LowerPrice = 4;       //最低价
+    double OpenPrice = 5;        //开盘价
+    double Trunover = 6;         //成交额
+    double TradeVolume = 7;      //成交量
+    string TimePoint = 8;        //K线时间
+}
+
+message StockInfo{
+	string Symbol = 1;			                        //编号
+	string SecurityNameGCCS = 2;                        //名称 繁体
+	string SecurityNameGB = 3;                          //名称 简体
+    string CurrencyCode = 4;	                        //交易币种
+	double LotSize = 5;			                        //每手数量
+	double PreviousClosingPrice = 6;                    //昨收价格
+	double Turnover = 7;		                        //成交额
+	double HighPrice = 8;                               //最高价
+	double LowPrice = 9;		                        //最低价
+	double LastPrice = 10;		                        //最新价
+	double SharesTraded = 11;	                        //交易量
+    double OpenPrice = 12;                              //开盘价
+    int32 Status = 13;                                  //状态(弃用)
+    string MarketCode = 14;                             //市场代码
+    string InstrumentType = 15;                         //类型
+    StockType StockType = 16;                           //详细类型
+    TradingStatus TradingStatus = 17;                   //交易状态
+    google.protobuf.Timestamp EndDateTime = 18;         //交易状态结束时间
+    string EnglishName = 19;                            //英文名称
+    int32 ProductType = 20;                             //子类型
+    string SpreadTableCode = 21;                        //辅助计算最小跳价
+    google.protobuf.Timestamp DelayTradingTime = 22;    //【适用港股未登录延迟】延迟的交易时间
+}
+
+//模糊搜索的匹配信息
+message MatchingStockInfo{
+	string Symbol = 1;
+	string SecurityNameGCCS = 2;   //名称 繁体
+	string SecurityNameGB = 3;     //名称 简体
+    string EnglishName = 4;        //名称 英文
+    MarketType Market = 5;         //市场类型
+}
+
+//价格面板
+message PricePanel{
+    string Symbol = 1;                          //代码
+    string Name = 2;                            //名称：简体
+    double LastPrice = 3;                       //最新价
+    double PreClosePrice = 4;                   //昨收价格
+    string EnglishName = 5;                     //名称：英文
+    string SecurityNameGCCS = 6;                //名称：繁体
+    MarketType Market = 7;
+    PricePanelSessionInfo SessionInfo = 8;      //时段信息：美股-盘前盘后价, 港股-无
+}
+
+message PricePanelSessionInfo{
+    TradeSession SessionId = 1; //时段
+    double LastPrice = 2;       //最新价
+}
+
+message ClosingPriceInfo{
+    string Symbol = 1;  //代码
+    double Price = 2;   //收盘价
+}
+
+message TradingSession{
+    string Symbol = 1;                          //代码
+    TradingStatus Status  = 2;                  //状态
+    google.protobuf.Timestamp EndDateTime = 3;  //交易状态结束时间
+}
+
+message StockSimpleInfo{
+    string Symbol = 1;
+    string Name = 2;
+    string EnglishName = 3;
+}
+
+message ConstituentStock{
+    string Symbol = 1;             //代码
+    string Name = 2;               //名称
+    int32 ContributionChange = 3;  //对指数涨跌的影响
+}

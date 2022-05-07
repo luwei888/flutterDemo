@@ -1,0 +1,110 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.Msg;
+
+import "grpc/google/protobuf/wrappers.proto";
+import "grpc/google/protobuf/timestamp.proto";
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+import "grpc/TradingApp/Protos/Trade/trade_model.proto";
+import "grpc/TradingApp/Protos/Message/message_notification_model.proto";
+
+//消息中心
+service MsgRpcSvc {
+  //获取未读消息数
+  rpc GetUnreadCount (GetUnreadCountReq) returns (GetUnreadCountResp);
+
+  //消息列表（兼容1.9.0）
+  rpc GetList (GetListReq) returns (GetListResp);
+
+  //消息列表
+  rpc GetMessageList (GetMessageListReq) returns (GetMessageListResp);
+
+  //设置已有消息为已读
+  rpc SetBeforeReadAlready (SetBeforeReadAlreadyReq) returns (SetBeforeReadAlreadyResp);
+  
+  //获取系统通知
+  rpc GetSystemNotice (GetSystemNoticeReq) returns (GetSystemNoticeResp);
+}
+
+//请求 - 获取系统通知
+message GetSystemNoticeReq{
+}
+
+//应答 - 获取系统通知
+message GetSystemNoticeResp{
+    SystemNotice Item = 1;
+}
+
+//请求 - 获取未读消息数
+message GetUnreadCountReq{
+}
+
+//响应 - 获取未读消息数
+message GetUnreadCountResp{
+    int32 Count = 1;    //未读数
+}
+
+message GetMessageListReq{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+    repeated int32 MessageTypes = 3;
+}
+
+message GetMessageListResp{
+    PageInfo PageInfo = 1;
+    repeated MsgItem List = 2;
+}
+
+//请求 - 消息列表
+message GetListReq{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+}
+
+//响应 - 消息列表
+message GetListResp{
+    PageInfo PageInfo = 1;
+    repeated MsgGm List = 2;
+}
+
+//请求 - 设置已有消息为已读
+message SetBeforeReadAlreadyReq{
+}
+
+//响应 - 获取未读消息数
+message SetBeforeReadAlreadyResp{
+}
+
+//消息类型
+enum MsgTypes{
+    OrderPlaced = 0;    // 交易订单
+    FundInfo = 1;       // 出入金信息
+    CurrencyExchange = 2; // 货币兑换
+}
+
+//消息
+message MsgGm{
+    google.protobuf.Timestamp  CreateTime = 1;//创建时间
+    MsgTypes Type = 2;  //消息类型
+    bool IsRead = 3;    //是否已读
+    TradingApp.ProtobufShared.Trade.OrderNoteInfo Order = 4;  //消息内容-订单通知
+    TradingApp.ProtobufShared.Message.FundNoteInfo Fund =  5; //资金通知-出入金通知
+    TradingApp.ProtobufShared.Message.CurrencyExchangeNoteInfo CurrencyExchange = 6; // 换汇通知-货币兑换通知
+}
+
+//消息
+message MsgItem{
+    google.protobuf.Timestamp  CreateTime = 1;//创建时间
+    int32 Type = 2;                             //消息类型
+    bool IsRead = 3;                          //是否已读
+    string Message = 4;                       //消息内容
+}
+
+// 系统通知
+message SystemNotice{
+    google.protobuf.StringValue English = 1;
+    google.protobuf.StringValue SimpleChinese = 2;
+    google.protobuf.StringValue TraditionalChinese = 3;
+    google.protobuf.StringValue Japanese = 4;
+    google.protobuf.StringValue Arabic = 5;
+}

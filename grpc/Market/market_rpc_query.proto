@@ -1,0 +1,321 @@
+﻿syntax = "proto3";
+package PG.FutureMarket.Protubuf.Rpc;
+import "grpc/google/protobuf/timestamp.proto";
+import "grpc/Market/market_model.proto";
+import "grpc/CompanyBehaviour/common_model.proto";
+
+/*---- Rpc ----*/
+
+service QueryMarketService{
+  //查询十档行情
+  rpc QueryLv2(RequestL2) returns (ResponseL2) {}
+  //查询TOS
+  rpc QueryTos(RequestTos) returns (ResponseTos) {}
+  //查询分时图
+  rpc QueryKLineTimeSharingChart(RequestTimeChart) returns (KLineTimeChart){} 
+  //查询K线
+  rpc GetKLineCandleChartByTime(RequestKLineByTime) returns (KLineCandleChart) {}
+  //查询指数分时图
+  //查询分K线，通过根数
+  rpc QueryMinKLineByLimit(RequestKLineByLimit) returns (KLineCandleChart) {}
+  //查询日K线，通过根数
+  rpc QueryDayKLineByLimit(RequestKLineByLimit) returns (KLineCandleChart) {}
+  rpc QueryIndexKlineTimeSharingChart(RequestTimeChart) returns (KLineTimeChart) {}
+  //查询所有期货信息【弃用】
+  rpc QueryFullFutureInfo(RequestAllFuture) returns (FullFutureInfo) {}
+  //查询期货基础信息【弃用】
+  rpc QueryFutureInfo(RequestFuture) returns (FutureInfo) {}
+  //查询经纪人队列
+  rpc QueryBrokerQueue(RequestBorkerQueue) returns (ResponseBrokerQueue) {}
+  //查询统计列表
+  rpc QueryStatisticsList(RequestStatistics) returns (ResponseStatistics) {}
+  //查询指数定义
+  rpc QueryIndexDefinition(RequestIndexDefinition) returns (IndexDefinitionList) {}
+  //查询指数数据
+  rpc QueryIndexData(RequestIndexData) returns (IndexData) {}
+  //查询所有股票信息
+  rpc QueryFullStockInfo(RequestAllStock) returns (FullStockInfo) {}
+  //查询股票基础信息
+  rpc QueryStockInfo(RequestStock) returns (StockInfo) {}
+  //查询现价,昨收价
+  rpc QueryPricePanel(RequestPricePanel) returns(ResponsePricePanel) {}
+  //查询匹配的股票基础信息
+  rpc QueryMatchingStockInfo(RequestMatchingStock) returns(ResponseMatchingStock) {}
+  //查询收盘价
+  rpc QueryClosingPrice(RequestClosingPrice) returns(ResponseClosingPrice) {}
+  //查询所有股票名称和代码
+  rpc QueryFullStockSimpleInfo(RequestStockSimpleInfo) returns(ResponseStockSimpleInfo) {}
+  //查询指数成分股
+  rpc QueryIndexConstituents(RequestIndexConstituents) returns(ResponseIndexConstituents) {}
+  //美股K线分时段查询, 同时保留旧接口兼容旧版本 QueryKLineTimeSharingChart 与 GetKLineCandleChartByTime
+  //分时
+  rpc QueryKLineTimeSharingChartWithTimeBucket(RequestTimeChartWithTimeBucket) returns (ResponseKLineWithTimeBucket){} 
+  //分钟与其他
+  rpc GetKLineCandleChartByTimeWithTimeBucket(RequestKLineByTime) returns (ResponseKLineWithTimeBucket) {}
+  //获取港美股分时数据
+  rpc GetKLineCandleChartMix(RequestKLineCandleChartMix) returns (ResponseKLineCandleChartMix) {}
+  //获取缩略图数据
+  rpc GetKLineThumbnailData(RequestKLineThumbnailData) returns (ResponseKLineThumbnailData) {}
+}
+
+
+/*---- Models ----*/
+
+//时间区间
+message TimeBucket{
+  string start = 1;         //开始时间
+  string end = 2;           //结束时间
+  TradeSession session = 3; //美股：交易时段, 港股无
+}
+
+/*---- Request ----*/
+
+
+//TOS请求
+message RequestTos{
+  string symbol = 1;
+  MarketType market = 2;
+  TradeSession session = 3; //美股：交易时段, 港股无
+}
+
+//十档行情请求
+message RequestL2{
+  string symbol = 1;
+  MarketType market = 2;
+}
+
+//通过日期区间查询K线信息
+message RequestKLineByDay{
+  string symbol = 1;
+  string startDate = 2;     //开始日期 | yyyy-MM-dd
+  string endDate = 3;       //结束如期 | yyyy-MM-dd
+}
+
+//通过偏移量查询K线信息
+message RequestKLineByLimit{
+  string symbol = 1;
+  int32 offset = 2;         //偏移量 | k线根数
+  int32 size = 3;           //获取数量 | k线根数
+  MarketType market = 4;
+}
+
+//所有期货信息请求
+message RequestAllFuture{}
+
+//期货信息请求
+message RequestFuture{
+  string symbol = 1;
+}
+
+//分时图请求
+message RequestTimeChart{
+  string symbol = 1;
+  MarketType market = 2;
+}
+
+message RequestTimeChartWithTimeBucket{
+  string symbol = 1;
+  //查询时段
+  TradeSession session = 2;
+}
+
+//查询经纪人队列请求
+message RequestBorkerQueue{
+  string symbol = 1;
+  MarketType market = 2;
+}
+
+message RequestStatistics{
+  string symbol = 1;
+  MarketType market = 2;
+}
+
+message RequestIndexDefinition{
+  MarketType market = 1;
+}
+
+message RequestIndexData{
+  string IndexCode = 1;
+  MarketType market = 2;
+}
+
+//模糊搜索请求
+message RequestMatchingStock{
+	string MatchingCharacters = 1;
+    MarketType Market = 2;
+}
+
+message RequestAllStock{
+  MarketType market = 1;
+}
+
+message RequestStock{
+    string symbol = 1;
+    MarketType market = 2;
+}
+
+//查询现价，昨收价
+message RequestPricePanel{
+    repeated string symbol = 1;
+    //【兼容旧版本】
+    MarketType market = 2;
+}
+
+message RequestKLineByTime{
+    string Symbol = 1;
+    google.protobuf.Timestamp StartTime = 2;
+    google.protobuf.Timestamp ToTime = 3;
+    CandleUnit Unit = 4;
+    MarketType market = 5;
+}
+
+message RequestClosingPrice{
+    string Start = 1;               //日期:yyyy-MM-dd
+    repeated string Symbols = 2;    //代码
+    MarketType market = 3;
+}
+
+message RequestStockSimpleInfo{
+  MarketType market = 1;
+}
+
+message RequestKLineCandleChartMix{
+    repeated string Symbols = 1;
+}
+
+message RequestKLineThumbnailData{
+    repeated string Symbols = 1;
+}
+/*---- Response ----*/
+
+//十档数据
+message ResponseL2{
+  string symbol = 1;
+  repeated Level2 datas = 2;
+}
+
+//TOS数据
+message ResponseTos{
+  string symbol = 1;
+  repeated Tos data = 2;
+}
+
+//分K线图
+message MinKLineChart{
+  string symbol = 1;
+  repeated MinuteKLine datas = 2;
+}
+
+//日K线图
+message DayKLineChart{
+  string symbol = 1;
+  repeated DayKLine datas = 2;
+}
+
+//所有期货数据
+message FullFutureInfo{
+  repeated FutureInfo datas = 1; 
+}
+
+//K线分时图
+message KLineTimeChart{
+  string symbol = 1;
+  repeated TimeBucket times = 2;
+  repeated MinuteKLine datas = 3;
+  double preClosePrice = 4;
+}
+
+//K线分时缩略图
+message KLineTimeThumbnailChart{
+  string symbol = 1;
+  repeated TimeBucket times = 2;
+  repeated SimpleMinuteKLine datas = 3;
+  double preClosePrice = 4;
+}
+
+message TimeBucketData{
+  TimeBucket timebucket = 1;
+  repeated MinuteKLine data = 2;
+  double preclose = 3;
+}
+
+message ResponseKLineWithTimeBucket{
+  string symbol = 1;
+  double preclose = 2; ///弃用
+  repeated TimeBucketData timebucketdata = 3;
+}
+
+//经纪人队列响应
+message ResponseBrokerQueue{
+    string symbol = 1;
+    BrokerQueue ask = 2;
+    BrokerQueue bid = 3;
+}
+
+message ResponseStatistics{
+    string symbol = 1;
+    Statistics statistics = 2;              //美股：盘中统计, 港股：面板统计
+    Statistics preMarketStatistics = 3;     //美股：盘前统计
+    Statistics afterMarketStatistics = 4;   //美股：盘后统计
+}
+
+message IndexDefinitionList{
+    repeated IndexDefinition Definitions = 1;
+}
+
+message FullStockInfo{
+    repeated StockInfo datas = 1;
+}
+
+//模糊搜索响应
+message ResponseMatchingStock{
+	repeated MatchingStockInfo datas = 1;
+}
+
+//现价，昨收价响应
+message ResponsePricePanel{
+    repeated PricePanel datas = 1;
+}
+
+message ResponseClosingPrice{
+    string Date = 1;               //时间 yyyy-MM-dd
+    repeated ClosingPriceInfo datas = 2;
+}
+
+
+message ResponseStockSimpleInfo{
+    repeated StockSimpleInfo datas = 1;
+}
+
+message RequestIndexConstituents{
+    string symbol = 1;
+    MarketType market = 2;
+}
+
+message ResponseIndexConstituents{
+    repeated ConstituentStock datas = 1;
+}
+
+message KLineCandleChartMixItem{
+    MarketType Market = 1;
+    string Symbol = 2;
+    double Preclose = 3;
+    TradingStatus TradingStatus = 4;
+    repeated MinuteKLine Data = 5;
+}
+
+message ResponseKLineCandleChartMix{
+    repeated KLineCandleChartMixItem Data = 1;
+}
+
+message KLineThumbnailItem{
+    MarketType Market = 1;
+    string Symbol = 2;
+    double Preclose = 3;
+    TradingStatus TradingStatus = 4;
+    repeated SimpleMinuteKLine Data = 5;
+}
+
+message ResponseKLineThumbnailData{
+    repeated KLineThumbnailItem Data = 1;
+}

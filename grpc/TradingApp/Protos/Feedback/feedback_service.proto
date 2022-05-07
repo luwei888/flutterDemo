@@ -1,0 +1,55 @@
+﻿syntax = "proto3"; 
+
+package TradingApp.GrpcService.App.Feedback;
+
+import "grpc/google/protobuf/timestamp.proto";
+import "grpc/TradingApp/Protos/Common/common_model.proto";
+
+//问题反馈
+service FeedbackService {
+  //新增问题反馈
+  rpc Add (stream AddRequest) returns (AddResponse);
+
+  //我的反馈
+  rpc GetList (GetListRequest) returns (GetListResponse);
+}
+
+message AddRequest{
+   string Content = 1;//反馈内容
+   FeedbackType Type = 2;//反馈类型（1.投诉；2.建议；3.反馈；4.举报......）
+   bytes ImgChunk = 3;  //数据块
+   int32 ImgIndex = 4;//图片下标
+}
+
+message AddResponse{
+}
+
+message GetListRequest{
+    Paging Paging = 1;
+	bool IsAsc = 2;
+}
+
+message GetListResponse{
+	repeated FeedbackInfo FeedbackInfo = 1;
+    PageInfo PageInfo = 2;
+}
+
+//反馈类型
+enum FeedbackType
+{
+    Other = 0;//其他
+    Complaint = 1;// 投诉
+    Suggest = 2;// 建议
+    Bug = 3;// 功能bug
+    Accusation = 4;// 举报
+}
+
+message FeedbackInfo
+{
+    string Id = 1;//Id 
+    google.protobuf.Timestamp  CreateTime = 2;//创建时间
+    string FeedbackContent = 3;//反馈详情
+    string FeedbackType = 4;//问题反馈类型
+    repeated string UrlList = 5;//图片Url 
+    string HandlingStatus = 6;//处理状态             
+}
