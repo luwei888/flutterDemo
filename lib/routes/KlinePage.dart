@@ -16,8 +16,8 @@ import 'package:flutter_demo/widgets/AnimatedList.dart';
 import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
 
-class KlinePage extends StatefulWidget {
-  const KlinePage({Key? key, this.title}) : super(key: key);
+class KlineRoute extends StatefulWidget {
+  const KlineRoute({Key? key, this.title}) : super(key: key);
 
   final String? title;
 
@@ -25,7 +25,7 @@ class KlinePage extends StatefulWidget {
   _KlinePagePageState createState() => _KlinePagePageState();
 }
 
-class _KlinePagePageState extends State<KlinePage> {
+class _KlinePagePageState extends State<KlineRoute> {
   List<KLineEntity> datas = [];
   ResponseTos tosDatas = ResponseTos();
 

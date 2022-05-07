@@ -14,6 +14,7 @@ import 'package:flutter_ume_kit_console/flutter_ume_kit_console.dart'; // debugP
 import 'package:flutter_ume_kit_dio/flutter_ume_kit_dio.dart'; // Dio 网络请求调试工具
 import 'package:provider/provider.dart';
 import 'Component/UMESwitch.dart';
+import 'component/Global.dart';
 import 'localizations/generated/l10n.dart';
 import 'routes/KlinePage.dart';
 import 'routes/MineRoute.dart';
@@ -71,26 +72,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (context, widget) {
-       return Directionality(
-          textDirection: TextDirection.ltr,
-          child: Builder(
-            builder: (BuildContext context) {
-              return MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaleFactor: 1.0,
-                ),
-                child: widget!,
-              );
-            },
-          ),
-        );
-      },
-      title: "flutter_demo",
-      localizationsDelegates: const [S.delegate],
-      home: const MyStatefulWidget(),
-    );
+    return ChangeNotifierProvider.value(
+      value: Global(),
+      child: MaterialApp(
+        builder: (context, widget) {
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (BuildContext context) {
+                return MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    textScaleFactor: 1.0,
+                  ),
+                  child: widget!,
+                );
+              },
+            ),
+          );
+        },
+        title: "flutter_demo",
+        localizationsDelegates: const [S.delegate],
+        home: const MyStatefulWidget(),
+      ),
+    ) ;
   }
 }
 
@@ -162,7 +166,7 @@ class RouterTestRoute extends StatelessWidget {
         onPressed: () async {
           var result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) {
-            return const KlinePage();
+            return const KlineRoute();
           }));
           print("路由返回值：$result");
         },

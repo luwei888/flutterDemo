@@ -1,10 +1,14 @@
 import 'dart:ui';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter_demo/component/Browser.dart';
+import 'package:flutter_demo/component/Global.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import 'LoginRoute.dart';
 
 class MineRoute extends StatefulWidget {
   const MineRoute({Key? key}) : super(key: key);
@@ -37,6 +41,9 @@ class _MineRouteState extends State<MineRoute> {
 
   @override
   Widget build(BuildContext context) {
+    //出去资源
+    final _global = Provider.of<Global>(context);
+
     return Scaffold(
         backgroundColor: const Color(0xFF191E28),
         body: NotificationListener<ScrollNotification>(
@@ -120,8 +127,8 @@ class _MineRouteState extends State<MineRoute> {
                             padding: EdgeInsets.only(top: 41.5.h),
                             child: Column(
                               children: <Widget>[
-                                const Text("Jeremy",
-                                    style: TextStyle(
+                                Text(_global.userName,
+                                    style: const TextStyle(
                                         fontSize: 15,
                                         color: Color(0xFFD88D00),
                                         fontWeight: FontWeight.w600)),
@@ -139,24 +146,32 @@ class _MineRouteState extends State<MineRoute> {
                         ))),
                 Positioned(
                     top: 76.h,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        Image(
-                          image: const AssetImage("images/head.png"),
-                          width: 104.h,
-                          height: 104.h,
-                        ),
-                        Positioned(
-                          top: 25.h,
-                          child: Image(
-                            image: const AssetImage("images/habit_logo.png"),
-                            width: 60.w,
-                            height: 60.w,
-                            color: const Color(0xFFD88D00),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return const LoginRoute();
+                        }));
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          Image(
+                            image: const AssetImage("images/head.png"),
+                            width: 104.h,
+                            height: 104.h,
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            top: 25.h,
+                            child: Image(
+                              image: const AssetImage("images/habit_logo.png"),
+                              width: 50.h,
+                              height: 50.h,
+                              color: const Color(0xFFD88D00),
+                            ),
+                          ),
+                        ],
+                      ),
                     )),
                 Positioned(
                     top: 200.5.h,
@@ -167,18 +182,22 @@ class _MineRouteState extends State<MineRoute> {
                       child: Swiper(
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
-                            onTap: (){
-                              Navigator.push(context,MaterialPageRoute(
-                                builder: (context) => const Browser(Key("xx"),"https://cn.bing.com/?FORM=Z9FD1","测试"))
-                              );
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Browser(
+                                          Key("xx"),
+                                          "https://cn.bing.com/?FORM=Z9FD1",
+                                          "测试")));
                             },
                             child: Image(
-                              image:
-                              const AssetImage("images/combo_pk_banner.png"),
+                              image: const AssetImage(
+                                  "images/combo_pk_banner.png"),
                               width: 104.h,
                               height: 104.h,
                             ),
-                          ) ;
+                          );
                         },
                         itemCount: 3,
                         pagination: const SwiperPagination(
@@ -247,7 +266,7 @@ class _MineRouteState extends State<MineRoute> {
                                     Positioned.directional(
                                         start: 34.w,
                                         textDirection:
-                                        Directionality.of(context),
+                                            Directionality.of(context),
                                         child: const Text("活动奖励",
                                             style: TextStyle(
                                                 color: Color(0xFFCCCCCC),
@@ -280,7 +299,7 @@ class _MineRouteState extends State<MineRoute> {
                                     Positioned.directional(
                                         start: 34.w,
                                         textDirection:
-                                        Directionality.of(context),
+                                            Directionality.of(context),
                                         child: const Text("帮助中心",
                                             style: TextStyle(
                                                 color: Color(0xFFCCCCCC),
@@ -306,14 +325,14 @@ class _MineRouteState extends State<MineRoute> {
                                     Positioned.directional(
                                       textDirection: Directionality.of(context),
                                       child: const Image(
-                                        image: AssetImage(
-                                            "images/contact_us.png"),
+                                        image:
+                                            AssetImage("images/contact_us.png"),
                                       ),
                                     ),
                                     Positioned.directional(
                                         start: 34.w,
                                         textDirection:
-                                        Directionality.of(context),
+                                            Directionality.of(context),
                                         child: const Text("联系我们",
                                             style: TextStyle(
                                                 color: Color(0xFFCCCCCC),
@@ -339,14 +358,13 @@ class _MineRouteState extends State<MineRoute> {
                                     Positioned.directional(
                                       textDirection: Directionality.of(context),
                                       child: const Image(
-                                        image: AssetImage(
-                                            "images/setting.png"),
+                                        image: AssetImage("images/setting.png"),
                                       ),
                                     ),
                                     Positioned.directional(
                                         start: 34.w,
                                         textDirection:
-                                        Directionality.of(context),
+                                            Directionality.of(context),
                                         child: const Text("系统设置",
                                             style: TextStyle(
                                                 color: Color(0xFFCCCCCC),

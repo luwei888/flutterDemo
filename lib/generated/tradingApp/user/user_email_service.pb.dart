@@ -11,7 +11,6 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import '../User/user_account_model.pb.dart' as $1;
 
-import '../User/user_account_model.pbenum.dart' as $1;
 import '../Common/common_model.pbenum.dart' as $2;
 
 class SendVerifyCodeReq extends $pb.GeneratedMessage {
