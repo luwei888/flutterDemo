@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter_demo/component/Browser.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -165,12 +166,19 @@ class _MineRouteState extends State<MineRoute> {
                       height: 110.h,
                       child: Swiper(
                         itemBuilder: (BuildContext context, int index) {
-                          return Image(
-                            image:
-                                const AssetImage("images/combo_pk_banner.png"),
-                            width: 104.h,
-                            height: 104.h,
-                          );
+                          return GestureDetector(
+                            onTap: (){
+                              Navigator.push(context,MaterialPageRoute(
+                                builder: (context) => const Browser(Key("xx"),"https://cn.bing.com/?FORM=Z9FD1","测试"))
+                              );
+                            },
+                            child: Image(
+                              image:
+                              const AssetImage("images/combo_pk_banner.png"),
+                              width: 104.h,
+                              height: 104.h,
+                            ),
+                          ) ;
                         },
                         itemCount: 3,
                         pagination: const SwiperPagination(
