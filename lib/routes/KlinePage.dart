@@ -324,7 +324,7 @@ class _KlinePagePageState extends State<KlineRoute> {
   }
 
   Future<String> getIPAddress(String? period) async {
-    //火币api，需要翻墙
+
     final channel = ClientChannel(
       '139.224.72.94',
       port: 51000,

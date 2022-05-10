@@ -1,13 +1,16 @@
-import 'dart:io';
-
 import 'package:flutter_demo/component/Global.dart';
+import 'package:flutter_demo/component/User/DeviceTraceHelper.dart';
 import 'package:flutter_demo/generated/tradingApp/Common/common_model.pbenum.dart';
+import 'package:flutter_demo/generated/tradingApp/user/user_account_model.pb.dart';
 import 'package:flutter_demo/generated/tradingApp/user/user_account_model.pbenum.dart';
+import 'package:flutter_demo/generated/tradingApp/user/user_account_service.pbgrpc.dart';
 import 'package:flutter_demo/generated/tradingApp/user/user_email_service.pbgrpc.dart';
+import 'package:flutter_demo/grpc/TradingAppInterceptor.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 
 class LoginRoute extends StatefulWidget {
@@ -40,31 +43,41 @@ class _LoginRouteState extends State<LoginRoute> {
       ..password = _password
       ..deviceType = DeviceTypes.Phone;
 
-    Future.delayed(const Duration(seconds: 1)).then((value) async {
+    var metadata = await DeviceTraceHelper.GetTraceMetaData();
 
-      var signInResp = await _userEmailServiceClient.signInByPassword(signReq);
+    try {
+      var signInResp = await _userEmailServiceClient.signInByPassword(signReq,
+          options: CallOptions(metadata: metadata));
 
-      if (signInResp.stateCode == StateCode.Success) {
+      if (signInResp.stateCode.name == StateCode.Success.name) {
         // 取出资源
-        final _global = Provider.of<Global>(context);
+        final _global = Provider.of<Global>(context, listen: false);
+
+        var _claims = JwtDecoder.decode(signInResp.token.token);
+
+        var _id = _claims["sub"];
+
+        _global.updateToken(signInResp.token.token);
+
+        var _userAccountServiceClient = UserAccountServiceClient(channel,interceptors:{TradingAppInterceptor()});
+
+        var req = GetUserInfoRequest()..idsID = _id;
+
+        var _userInfo = await _userAccountServiceClient
+            .getUserInfo(req);
 
         _global.setUserName(_email);
         Navigator.of(context).pop();
       } else {
-        // Fluttertoast.showToast(
-        //     msg: "账号或密码错误",
-        //     toastLength: Toast.LENGTH_SHORT,
-        //     gravity: ToastGravity.BOTTOM,
-        //     timeInSecForIosWeb: 1,
-        //     backgroundColor: Colors.black45,
-        //     textColor: Colors.white,
-        //     fontSize: 16.0);
         setState(() {
           _isDisable = false;
         });
       }
-
-    });
+    } catch (e) {
+      setState(() {
+        _isDisable = false;
+      });
+    }
   }
 
   @override

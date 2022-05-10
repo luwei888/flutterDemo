@@ -1,6 +1,6 @@
 
 class Token  {
-  late int id;
+  late String idsToken;
   late String userName;
   late String accessToken;
   late int start;
