@@ -15,6 +15,7 @@ import 'package:flutter_ume_kit_dio/flutter_ume_kit_dio.dart'; // Dio 网络请�
 import 'package:provider/provider.dart';
 import 'Component/UMESwitch.dart';
 import 'component/Global.dart';
+import 'generated/companyBehaviour/common_model.pbenum.dart';
 import 'localizations/generated/l10n.dart';
 import 'routes/KlinePage.dart';
 import 'routes/MineRoute.dart';
@@ -162,16 +163,31 @@ class RouterTestRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ElevatedButton(
-        onPressed: () async {
-          var result = await Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-            return const KlineRoute();
-          }));
-          print("路由返回值：$result");
-        },
-        child: Text("打开行情页面"),
-      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ElevatedButton(
+            onPressed: () async {
+              var result = await Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return const KlineRoute(marketType: MarketType.HK,);
+                  }));
+              print("路由返回值：$result");
+            },
+            child: const Text("打开港股行情页面"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              var result = await Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return const KlineRoute(marketType: MarketType.US,);
+                  }));
+              print("路由返回值：$result");
+            },
+            child: const Text("打开美股行情页面"),
+          )
+        ],
+      ) ,
     );
   }
 }

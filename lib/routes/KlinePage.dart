@@ -17,9 +17,10 @@ import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
 
 class KlineRoute extends StatefulWidget {
-  const KlineRoute({Key? key, this.title}) : super(key: key);
+  const KlineRoute({Key? key, this.title, required this.marketType}) : super(key: key);
 
   final String? title;
+  final MarketType marketType;
 
   @override
   _KlinePagePageState createState() => _KlinePagePageState();
@@ -33,8 +34,7 @@ class _KlinePagePageState extends State<KlineRoute> {
   MainState _mainState = MainState.MA;
   SecondaryState _secondaryState = SecondaryState.MACD;
   bool isLine = true;
-  List<DepthEntity> _bids = [],
-      _asks = [];
+  List<DepthEntity> _bids = [], _asks = [];
 
   final GlobalKey<AnimatedListSampleState> _key = GlobalKey();
 
@@ -158,19 +158,17 @@ class _KlinePagePageState extends State<KlineRoute> {
         button("MA", onPressed: () => _mainState = MainState.MA),
         button("BOLL", onPressed: () => _mainState = MainState.BOLL),
         button("隐藏",
-            onPressed: () =>
-            _mainState =
-            _mainState == MainState.NONE ? MainState.MA : MainState.NONE),
+            onPressed: () => _mainState =
+                _mainState == MainState.NONE ? MainState.MA : MainState.NONE),
         button("MACD", onPressed: () => _secondaryState = SecondaryState.MACD),
         button("KDJ", onPressed: () => _secondaryState = SecondaryState.KDJ),
         button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
         button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
         button("隐藏副视图",
-            onPressed: () =>
-            _secondaryState =
-            _secondaryState == SecondaryState.NONE
-                ? SecondaryState.MACD
-                : SecondaryState.NONE),
+            onPressed: () => _secondaryState =
+                _secondaryState == SecondaryState.NONE
+                    ? SecondaryState.MACD
+                    : SecondaryState.NONE),
         button("update", onPressed: () {
           //更新最后一条数据
           datas.last.close += (Random().nextInt(100) - 50).toDouble();
@@ -243,30 +241,39 @@ class _KlinePagePageState extends State<KlineRoute> {
     );
 
     SubMarketServiceClient subMarketServiceClient =
-    SubMarketServiceClient(channel);
+        SubMarketServiceClient(channel);
 
     var tokenRequest = await subMarketServiceClient
         .createSubscribeToken(SubscribeInitRequest());
 
     var connection = subMarketServiceClient
-        .buildConnection(SubscribeBuilder()
-      ..token = tokenRequest.token);
+        .buildConnection(SubscribeBuilder()..token = tokenRequest.token);
 
     // await connection.headers;
 
     //监听数据
     connection.listen((value) {
-      if(value.hasTos()){
+      if (value.hasTos()) {
         _key.currentState?.insertTos(value.tos);
       }
     });
 
     Future.delayed(const Duration(seconds: 1)).then((value) => {
-    subMarketServiceClient.subscribe(SubscribeRequest()
-    ..token = tokenRequest.token
-    ..symbol = "TSLA"
-    ..type = SubscribeType.SubTos)
-    });
+          if (widget.marketType.value == MarketType.US.value)
+            {
+              subMarketServiceClient.subscribe(SubscribeRequest()
+                ..token = tokenRequest.token
+                ..symbol = "TSLA"
+                ..type = SubscribeType.SubTos)
+            }
+          else if (widget.marketType.value == MarketType.HK.value)
+            {
+              subMarketServiceClient.subscribe(SubscribeRequest()
+                ..token = tokenRequest.token
+                ..symbol = "00700"
+                ..type = SubscribeType.SubTos)
+            }
+        });
   }
 
   Future getTosData() async {
@@ -278,13 +285,23 @@ class _KlinePagePageState extends State<KlineRoute> {
 
     var queryMarketClient = QueryMarketServiceClient(channel);
 
-    var tos = await queryMarketClient.queryTos(RequestTos()
-      ..symbol = "TSLA"
-      ..market = MarketType.US
-      ..session = TradeSession.midday);
+    if (widget.marketType.value == MarketType.US.value) {
+      var tos = await queryMarketClient.queryTos(RequestTos()
+        ..symbol = "TSLA"
+        ..market = MarketType.US
+        ..session = TradeSession.midday);
 
-    tosDatas = tos;
-    setState(() {});
+      tosDatas = tos;
+      setState(() {});
+    } else if (widget.marketType.value == MarketType.HK.value) {
+      var tos = await queryMarketClient.queryTos(RequestTos()
+        ..symbol = "00700"
+        ..market = MarketType.HK
+        ..session = TradeSession.midday);
+
+      tosDatas = tos;
+      setState(() {});
+    }
   }
 
   Future insertGrpcKlineData() async {
@@ -297,7 +314,7 @@ class _KlinePagePageState extends State<KlineRoute> {
     var queryMarketClient = QueryMarketServiceClient(channel);
 
     Timestamp startTime =
-    Timestamp.fromDateTime(DateTime.now().add(const Duration(days: -360)));
+        Timestamp.fromDateTime(DateTime.now().add(const Duration(days: -360)));
 
     Timestamp stopTime = Timestamp.fromDateTime(DateTime.now());
 
@@ -305,13 +322,23 @@ class _KlinePagePageState extends State<KlineRoute> {
     CandleUnit unit = CandleUnit.DAILY;
     MarketType type = MarketType.US;
 
+    if (widget.marketType.value == MarketType.US.value) {
+      symbol = "TSLA";
+      unit = CandleUnit.DAILY;
+      type = MarketType.US;
+    } else if (widget.marketType.value == MarketType.HK.value) {
+      symbol = "00700";
+      unit = CandleUnit.DAILY;
+      type = MarketType.HK;
+    }
+
     var data =
-    await queryMarketClient.getKLineCandleChartByTime(RequestKLineByTime()
-      ..symbol = symbol
-      ..startTime = startTime
-      ..toTime = stopTime
-      ..unit = unit
-      ..market = type);
+        await queryMarketClient.getKLineCandleChartByTime(RequestKLineByTime()
+          ..symbol = symbol
+          ..startTime = startTime
+          ..toTime = stopTime
+          ..unit = unit
+          ..market = type);
 
     datas = data.candles
         .map((e) => KLineEntity.fromGrpc(e))
@@ -323,49 +350,47 @@ class _KlinePagePageState extends State<KlineRoute> {
     setState(() {});
   }
 
-  Future<String> getIPAddress(String? period) async {
-
-    final channel = ClientChannel(
-      '139.224.72.94',
-      port: 51000,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-
-    var queryMarketClient = QueryMarketServiceClient(channel);
-
-    Timestamp startTime =
-    Timestamp.fromDateTime(DateTime.now().add(const Duration(days: -360)));
-
-    Timestamp stopTime = Timestamp.fromDateTime(DateTime.now());
-
-    String symbol = "TSLA";
-    CandleUnit unit = CandleUnit.DAILY;
-    MarketType type = MarketType.US;
-
-    var test2 =
-    await queryMarketClient.getKLineCandleChartByTime(RequestKLineByTime()
-      ..symbol = symbol
-      ..startTime = startTime
-      ..toTime = stopTime
-      ..unit = CandleUnit.DAILY
-      ..market = type);
-
-    var url =
-        'https://api.huobi.br.com/market/history/kline?period=${period ??
-        '1day'}&size=300&symbol=btcusdt';
-    var url2 = "https://api.huobi.br.com/market/trade?symbol=btcusdt";
-
-    var test = await rootBundle.loadString('json/klineData.json');
-
-    // String result;
-    // var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: 7));
-    // var response2 = await http.get(Uri.parse(url2)).timeout(Duration(seconds: 7));
-
-    // if (response.statusCode == 200) {
-    //   result = test;
-    // } else {
-    //   return Future.error("获取失败");
-    // }
-    return test;
-  }
+  // Future<String> getIPAddress(String? period) async {
+  //   final channel = ClientChannel(
+  //     '139.224.72.94',
+  //     port: 51000,
+  //     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  //   );
+  //
+  //   var queryMarketClient = QueryMarketServiceClient(channel);
+  //
+  //   Timestamp startTime =
+  //       Timestamp.fromDateTime(DateTime.now().add(const Duration(days: -360)));
+  //
+  //   Timestamp stopTime = Timestamp.fromDateTime(DateTime.now());
+  //
+  //   String symbol = "TSLA";
+  //   CandleUnit unit = CandleUnit.DAILY;
+  //   MarketType type = MarketType.US;
+  //
+  //   var test2 =
+  //       await queryMarketClient.getKLineCandleChartByTime(RequestKLineByTime()
+  //         ..symbol = symbol
+  //         ..startTime = startTime
+  //         ..toTime = stopTime
+  //         ..unit = CandleUnit.DAILY
+  //         ..market = type);
+  //
+  //   var url =
+  //       'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+  //   var url2 = "https://api.huobi.br.com/market/trade?symbol=btcusdt";
+  //
+  //   var test = await rootBundle.loadString('json/klineData.json');
+  //
+  //   // String result;
+  //   // var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: 7));
+  //   // var response2 = await http.get(Uri.parse(url2)).timeout(Duration(seconds: 7));
+  //
+  //   // if (response.statusCode == 200) {
+  //   //   result = test;
+  //   // } else {
+  //   //   return Future.error("获取失败");
+  //   // }
+  //   return test;
+  // }
 }

@@ -187,7 +187,7 @@ class CardItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     SizedBox(
-                      width: 30,
+                      width: 35,
                       child: Text(
                           outputFormat.format(DateTime.parse(item.time)),
                           style: const TextStyle(
